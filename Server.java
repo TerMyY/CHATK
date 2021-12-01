@@ -6,37 +6,46 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Server
 {
 	// server port
-    private static final int PORT = 9999;
+    private static int port = 9009;
 
 	// list of client names
-    private static final HashSet<String> clientNames = new HashSet<>();
+    private static final List<String> clientNames = new ArrayList<>();
 
-	private static final HashSet<PrintWriter> printWriters = new HashSet<>();
+	private static final List<PrintWriter> printWriters = new ArrayList<>();
 
 	// server listen on a port and spawns client handler for each connection  
 	public static void main(String[] args)
 	{
-		System.out.println("Launching the chat server...");
+		System.out.print("Launching the chat server...");
 		ServerSocket serverSocket = null;
 		
 		try
 		{
-			serverSocket = new ServerSocket(PORT);
-			while (true)
+			if (args.length > 0) port = Integer.parseInt(args[0]);
+			serverSocket = new ServerSocket(port);
+			System.out.println("(OK)");
+			while (!serverSocket.isClosed())
 			{
 				new ClientHandler(serverSocket.accept()).start();
 			}
-		} catch (Exception e)
+		} catch (NumberFormatException nfEx)
 		{
-			e.printStackTrace();
+			System.out.println("Port number is incorrect");
+			return;
+		} catch (Exception ex)
+		{
+			System.out.println("Server failed to open");
 		}
 		finally
 		{
-			try { serverSocket.close(); } catch (IOException ex) { ex.printStackTrace(); }
+			if (serverSocket != null)
+				try { serverSocket.close(); } catch (Exception ex) { ex.printStackTrace(); }
 		}
 	}
 
@@ -44,9 +53,9 @@ public class Server
 	private static class ClientHandler extends Thread
 	{
 		private String clientName;
-        	private Socket socket;
-        	private BufferedReader in;
-        	private PrintWriter out;
+        private Socket socket;
+        private BufferedReader in;
+        private PrintWriter out;
 
 		public ClientHandler(Socket socket)
 		{
@@ -57,9 +66,9 @@ public class Server
 		{
 			try
 			{
-				in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
-				out = new PrintWriter( new PrintWriter( socket.getOutputStream(), true ) ); // autoflush: true
-				while (true)
+				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				out = new PrintWriter(socket.getOutputStream(), true); // autoflush: true
+				while (socket.isConnected())
 				{
 					out.println("SUBMITNAME");
 					clientName = in.readLine();
@@ -75,8 +84,17 @@ public class Server
 				}
 				out.println("NAMEACCEPTED");
 				printWriters.add(out);
-				while (true)
+				boolean isNew = true;
+				while (socket.isConnected())
 				{
+					if (isNew)
+					{
+						for (PrintWriter writer : printWriters)
+						{
+							writer.println("MESSAGE -Client connected (" + clientName + ")-");
+							isNew = false;
+						}
+					}
 					String input = in.readLine();
 					if (input == null) return;
 					for (PrintWriter writer : printWriters)
@@ -84,17 +102,21 @@ public class Server
 						writer.println("MESSAGE " + clientName + ": " + input);
 					}
 				}
-			} catch (IOException e)
+			} catch (Exception ex)
 			{
-				e.printStackTrace();
+				String message = "-Client Disconnected (" + clientName + ")-";
+				System.out.println(message);
+				for (PrintWriter writer : printWriters)
+				{
+					writer.println("MESSAGE " + message);
+				}
 			}
 			finally
 			{
 				if (clientName != null) clientNames.remove(clientName);
 				if (out != null) printWriters.remove(out);
-				try { socket.close(); } catch (IOException ex) { ex.printStackTrace(); }
+				try { socket.close(); } catch (Exception ex) { ex.printStackTrace(); }
 			}
 		}
 	}
-
 }

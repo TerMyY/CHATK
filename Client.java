@@ -1,5 +1,7 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,12 +11,13 @@ import javax.swing.*;
 
 public class Client
 {
-
+	private static int port = 9009;
 	BufferedReader in;
     PrintWriter out;
     JFrame frame = new JFrame("CHATK");
     JTextField inputField = new JTextField();
     JTextArea messageArea = new JTextArea();
+	Socket socket = null;
 	
 	public Client()
 	{
@@ -26,13 +29,10 @@ public class Client
 		frame.setVisible(true);
 		frame.setSize(500, 900);
 		
-		ActionListener enterListener = new ActionListener()
+		ActionListener enterListener = e ->
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				out.println(inputField.getText());
-				inputField.setText("");
-			}
+			out.println(inputField.getText());
+			inputField.setText("");
 		};
 		inputField.addActionListener(enterListener);
 	}
@@ -65,15 +65,15 @@ public class Client
 		String serverAddress = getServerAddress();
 		try
 		{
-			Socket socket = new Socket(serverAddress, 9999);
+			socket = new Socket(serverAddress, port);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true); // autoflush: true
-		} catch (IOException e)
+		} catch (Exception ex)
 		{
-			e.printStackTrace();
+			System.out.println("Could not connect to the server");
 		}
 
-		while (true)
+		while (socket.isConnected())
 		{
 			String line = "";
 			try { line = in.readLine(); } catch (IOException e) { e.printStackTrace(); }
@@ -85,6 +85,14 @@ public class Client
 	
 	public static void main(String[] args)
 	{
+		try
+		{
+			if (args.length > 0) port = Integer.parseInt(args[0]);
+		} catch (Exception ex)
+		{
+			System.out.println("Port number is incorrect");
+			return;
+		}
 		Client client = new Client();
 		client.run();
 	}
