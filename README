@@ -1,0 +1,21 @@
+CHATK - Chat Server+Client System For PJATK Students.
+
+A small chat utility made by and for the students of the Polish-Japanese Academy of Computer Science.
+
+-Usage-
+
+	-For the host-
+		Launch the server on some host machine using the 'LaunchServer.bat' script,
+		or run 'java Client' in your terminal(make sure you are in the project's directory).
+
+	-For the client-
+		Launch the client using the 'LaunchClient.bat script',
+		or run 'java Server' in your terminal(make sure you are in the project's directory)
+
+-Arguments-
+	
+	If you're running this utility from the terminal you can specify the port number
+	on which the server will listen and the clients will try to connect.
+	If you desire to do that - just provide the port number as the first argument for both Server and Clients.
+	Remember: both Server and Clients should have the same port otherwise they won't connect.
+	If nothing is provided both Server and Clients will use the default port (9009)

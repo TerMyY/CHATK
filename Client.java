@@ -13,10 +13,10 @@ public class Client
 {
 	private static int port = 9009;
 	BufferedReader in;
-    PrintWriter out;
-    JFrame frame = new JFrame("CHATK");
-    JTextField inputField = new JTextField();
-    JTextArea messageArea = new JTextArea();
+	PrintWriter out;
+	JFrame frame = new JFrame("CHATK");
+	JTextField inputField = new JTextField();
+	JTextArea messageArea = new JTextArea();
 	Socket socket = null;
 	
 	public Client()
