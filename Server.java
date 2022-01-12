@@ -14,11 +14,11 @@ import java.util.ArrayList;
 public class Server
 {
 	// server port
-    private static int port = 9009;
+	private static int port = 9009;
 
 	// list of client names
-    private static final List<String> clientNames = new ArrayList<>();
-
+	private static final List<String> clientNames = new ArrayList<>();
+	// list of print writers
 	private static final List<PrintWriter> printWriters = new ArrayList<>();
 
 	// server listen on a port and spawns client handler for each connection  
@@ -27,6 +27,8 @@ public class Server
 		System.out.print("Launching the chat server...");
 		ServerSocket serverSocket = null;
 		
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> { System.out.print("Shutting down...(OK)"); }));
+
 		try
 		{
 			if (args.length > 0) port = Integer.parseInt(args[0]);
@@ -38,11 +40,11 @@ public class Server
 			}
 		} catch (NumberFormatException nfEx)
 		{
-			System.out.println("Port number is incorrect");
+			System.out.println("(Port number is incorrect)");
 			return;
 		} catch (Exception ex)
 		{
-			System.out.println("Server failed to open");
+			System.out.println("(Server failed to open)");
 		}
 		finally
 		{
@@ -55,9 +57,9 @@ public class Server
 	private static class ClientHandler extends Thread
 	{
 		private String clientName;
-        private Socket socket;
-        private BufferedReader in;
-        private PrintWriter out;
+		private Socket socket;
+	  	private BufferedReader in;
+	  	private PrintWriter out;
 
 		public ClientHandler(Socket socket)
 		{
@@ -66,6 +68,8 @@ public class Server
 
 		public void run()
 		{
+			SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");;
+			String currentTime;
 			try
 			{
 				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -88,31 +92,35 @@ public class Server
 				printWriters.add(out);
 				boolean isNew = true;
 				while (socket.isConnected())
-				{
+				{		
 					if (isNew)
 					{
+						currentTime = " -" + timeFormat.format(new Date()) + "- ";
+						String message = " -Client Connected (" + clientName + ")- ";
+						System.out.println(message);
 						for (PrintWriter writer : printWriters)
 						{
-							writer.println("MESSAGE -Client connected (" + clientName + ")-");
+							writer.println("MESSAGE " + message + currentTime);
 							isNew = false;
 						}
 					}
+					
 					String input = in.readLine();
 					if (input == null) return;
 					for (PrintWriter writer : printWriters)
 					{
-						SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-						String currentTime = timeFormat.format(new Date());
-						writer.println("MESSAGE " + clientName + ": " + input + "\t-" + currentTime + "-");
+						currentTime = " -" + timeFormat.format(new Date()) + "- ";
+						writer.println("MESSAGE " + clientName + ": " + input + currentTime);
 					}
 				}
 			} catch (Exception ex)
 			{
-				String message = "-Client Disconnected (" + clientName + ")-";
+				String message = " -Client Disconnected (" + clientName + ")- ";
 				System.out.println(message);
 				for (PrintWriter writer : printWriters)
 				{
-					writer.println("MESSAGE " + message);
+					currentTime = " -" + timeFormat.format(new Date()) + "- ";
+					writer.println("MESSAGE " + message + currentTime);
 				}
 			}
 			finally
