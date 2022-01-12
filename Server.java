@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -99,7 +101,9 @@ public class Server
 					if (input == null) return;
 					for (PrintWriter writer : printWriters)
 					{
-						writer.println("MESSAGE " + clientName + ": " + input);
+						SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+						String currentTime = timeFormat.format(new Date());
+						writer.println("MESSAGE " + clientName + ": " + input + "\t-" + currentTime + "-");
 					}
 				}
 			} catch (Exception ex)
