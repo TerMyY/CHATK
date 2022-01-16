@@ -1,7 +1,7 @@
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,26 +15,36 @@ public class Client
 	BufferedReader in;
 	PrintWriter out;
 	JFrame frame = new JFrame("CHATK");
-	JTextField inputField = new JTextField();
-	JTextArea messageArea = new JTextArea();
+	BorderLayout borderLayout = new BorderLayout();
+	JPanel panel = new JPanel(borderLayout);
+	JTextField textField = new JTextField();
+	JTextArea chatArea = new JTextArea();
 	Socket socket = null;
+	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	int width = gd.getDisplayMode().getWidth();
+	int height = gd.getDisplayMode().getHeight();
 	
 	public Client()
 	{
-		inputField.setEditable(false);
-		messageArea.setEditable(false);
-		frame.getContentPane().add(inputField, "North");
-		frame.getContentPane().add(new JScrollPane(messageArea), "Center");
+		textField.setEditable(false);
+		chatArea.setEditable(false);
+		textField.addActionListener(e -> { send(); });
+		panel.add(chatArea, borderLayout.CENTER);
+		panel.add(textField, borderLayout.SOUTH);
+		frame.add(panel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		frame.setSize(500, 900);
-		
-		ActionListener enterListener = e ->
+		frame.setSize(width/3, height/3);
+		frame.setLocationRelativeTo(null);
+	}
+
+	private void send()
+	{
+		if(textField.getText().trim().length() > 0)
 		{
-			out.println(inputField.getText());
-			inputField.setText("");
-		};
-		inputField.addActionListener(enterListener);
+			out.println(textField.getText());
+			textField.setText("");
+		}
 	}
 
 	private String getServerAddress()
@@ -78,8 +88,8 @@ public class Client
 			String line = "";
 			try { line = in.readLine(); } catch (IOException e) { e.printStackTrace(); }
 			if (line.startsWith("SUBMITNAME")) out.println(getName());
-			else if (line.startsWith("NAMEACCEPTED")) inputField.setEditable(true);
-			else if (line.startsWith("MESSAGE")) { messageArea.append(line.substring(8) + "\n"); }
+			else if (line.startsWith("NAMEACCEPTED")) textField.setEditable(true);
+			else if (line.startsWith("MESSAGE")) { chatArea.append(line.substring(8) + "\n"); }
 		}
 	}
 	
