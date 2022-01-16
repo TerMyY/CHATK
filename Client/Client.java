@@ -88,6 +88,7 @@ public class Client
 		try
 		{
 			if (args.length > 0) port = Integer.parseInt(args[0]);
+			UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
 		} catch (Exception ex)
 		{
 			System.out.println("Port number is incorrect");
