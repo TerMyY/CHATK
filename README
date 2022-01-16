@@ -4,13 +4,12 @@ A small chat utility made by and for the students of the Polish-Japanese Academy
 
 -Usage-
 
-	-For the host-
-		Launch the server on some host machine using the 'LaunchServer.bat' script,
-		or run 'java Client' in your terminal(make sure you are in the project's directory).
-
 	-For the client-
-		Launch the client using the 'LaunchClient.bat script',
-		or run 'java Server' in your terminal(make sure you are in the project's directory)
+		Launch an app by running CHATK.jar.
+		Alternatively: Compile and run 'Client/Client.java' class in your terminal. 
+
+	-For the host-
+		Compile and run 'Server/Server.java' class in your terminal.
 
 -Arguments-
 	
