@@ -29,7 +29,7 @@ public class Client
 		textField.setEditable(false);
 		chatArea.setEditable(false);
 		textField.addActionListener(e -> { send(); });
-		panel.add(chatArea, borderLayout.CENTER);
+		panel.add(new JScrollPane(chatArea), borderLayout.CENTER);
 		panel.add(textField, borderLayout.SOUTH);
 		frame.add(panel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
